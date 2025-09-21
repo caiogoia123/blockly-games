@@ -59,15 +59,34 @@ deps:
 	mkdir -p appengine/third-party
 	wget -N https://unpkg.com/@babel/standalone@7.14.8/babel.min.js
 	mv babel.min.js appengine/third-party/
-	@# GitHub doesn't support git archive, so download files using svn.
-	svn export --force https://github.com/ajaxorg/ace-builds/trunk/src-min-noconflict/ appengine/third-party/ace
-	mkdir -p appengine/third-party/blockly
-	svn export --force https://github.com/NeilFraser/blockly-for-BG/trunk/ appengine/third-party/blockly
-	svn export --force https://github.com/CreateJS/SoundJS/trunk/lib/ appengine/third-party/SoundJS
+
+	@# Ace (src-min-noconflict)
+	wget -O ace.zip https://github.com/ajaxorg/ace-builds/archive/refs/heads/master.zip
+	unzip -o ace.zip "ace-builds-master/src-min-noconflict/*" -d .
+	mv -f ace-builds-master/src-min-noconflict appengine/third-party/ace
+	rm -rf ace.zip ace-builds-master
+
+	@# Blockly for BG
+	wget -O blockly.zip https://github.com/NeilFraser/blockly-for-BG/archive/refs/heads/master.zip
+	unzip -o blockly.zip -d .
+	mv -f blockly-for-BG-master appengine/third-party/blockly
+	rm -rf blockly.zip blockly-for-BG-master
+
+	@# SoundJS
+	wget -O soundjs.zip https://github.com/CreateJS/SoundJS/archive/refs/heads/master.zip
+	unzip -o soundjs.zip "SoundJS-master/lib/*" -d .
+	mv -f SoundJS-master/lib appengine/third-party/SoundJS
+	rm -rf soundjs.zip SoundJS-master
+
 	cp third-party/base.js appengine/third-party/
 	cp -R third-party/soundfonts appengine/third-party/
 
-	svn export --force https://github.com/NeilFraser/JS-Interpreter/trunk/ appengine/third-party/JS-Interpreter
+	@# JS-Interpreter
+	wget -O jsinterp.zip https://github.com/NeilFraser/JS-Interpreter/archive/refs/heads/master.zip
+	unzip -o jsinterp.zip -d .
+	mv -f JS-Interpreter-master appengine/third-party/JS-Interpreter
+	rm -rf jsinterp.zip JS-Interpreter-master
+
 	@# Compile JS-Interpreter using SIMPLE_OPTIMIZATIONS because the Music game needs to mess with the stack.
 	java -jar build/third-party-downloads/closure-compiler.jar\
 	  --language_out ECMASCRIPT5\
