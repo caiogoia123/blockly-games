@@ -1,6 +1,6 @@
 .DS_Store
 *.pyc
-
+package-lock.json
 appengine/generated/
 appengine/*/generated/
 appengine/*/*/generated/
