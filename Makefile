@@ -2,7 +2,7 @@
 # Definitions
 ##############################
 
-REQUIRED_BINS = svn wget java python
+REQUIRED_BINS = git java wget python
 
 ##############################
 # Rules
@@ -52,42 +52,36 @@ common:
 deps:
 	$(foreach bin,$(REQUIRED_BINS),\
 	    $(if $(shell command -v $(bin) 2> /dev/null),$(info Found `$(bin)`),$(error Please install `$(bin)`)))
-	mkdir -p build/third-party-downloads
-	wget -N https://unpkg.com/google-closure-compiler-java/compiler.jar;
-	mv -f compiler.jar build/third-party-downloads/closure-compiler.jar;
 
 	mkdir -p appengine/third-party
 	wget -N https://unpkg.com/@babel/standalone@7.14.8/babel.min.js
 	mv babel.min.js appengine/third-party/
-
-	@# Ace (src-min-noconflict)
-	wget -O ace.zip https://github.com/ajaxorg/ace-builds/archive/refs/heads/master.zip
-	unzip -o ace.zip "ace-builds-master/src-min-noconflict/*" -d .
-	mv -f ace-builds-master/src-min-noconflict appengine/third-party/ace
-	rm -rf ace.zip ace-builds-master
-
-	@# Blockly for BG
-	wget -O blockly.zip https://github.com/NeilFraser/blockly-for-BG/archive/refs/heads/master.zip
-	unzip -o blockly.zip -d .
-	mv -f blockly-for-BG-master appengine/third-party/blockly
-	rm -rf blockly.zip blockly-for-BG-master
-
-	@# SoundJS
-	wget -O soundjs.zip https://github.com/CreateJS/SoundJS/archive/refs/heads/master.zip
-	unzip -o soundjs.zip "SoundJS-master/lib/*" -d .
-	mv -f SoundJS-master/lib appengine/third-party/SoundJS
-	rm -rf soundjs.zip SoundJS-master
-
 	cp third-party/base.js appengine/third-party/
 	cp -R third-party/soundfonts appengine/third-party/
 
+	@# Ace (src-min-noconflict)
+	git clone --depth=1 https://github.com/ajaxorg/ace-builds/ ./appengine/third-party/ace-builds
+	mv ./appengine/third-party/ace-builds/src-noconflict ./appengine/third-party/ace
+	#rm -rf ./appengine/third-party/ace-builds/
+
+	@# Blockly for BG
+	git clone --depth=1 https://github.com/NeilFraser/blockly-for-BG ./appengine/third-party/blockly-for-BG
+	mv ./appengine/third-party/blockly-for-BG appengine/third-party/blockly
+	#rm -rf ./appengine/third-party/blockly/.git
+
+	@# SoundJS
+	git clone --depth=1 https://github.com/CreateJS/SoundJS ./appengine/third-party/SoundJS.tmp
+	mv ./appengine/third-party/SoundJS.tmp/lib appengine/third-party/SoundJS
+	#rm -rf ./appengine/third-party/SoundJS.tmp
+
 	@# JS-Interpreter
-	wget -O jsinterp.zip https://github.com/NeilFraser/JS-Interpreter/archive/refs/heads/master.zip
-	unzip -o jsinterp.zip -d .
-	mv -f JS-Interpreter-master appengine/third-party/JS-Interpreter
-	rm -rf jsinterp.zip JS-Interpreter-master
+	git clone --depth=1 https://github.com/NeilFraser/JS-Interpreter ./appengine/third-party/JS-Interpreter
+	#rm -rf ./appengine/third-party/JS-Interpreter/.git
 
 	@# Compile JS-Interpreter using SIMPLE_OPTIMIZATIONS because the Music game needs to mess with the stack.
+	mkdir -p build/third-party-downloads
+	wget -N https://unpkg.com/google-closure-compiler-java/compiler.jar;
+	mv -f compiler.jar build/third-party-downloads/closure-compiler.jar;
 	java -jar build/third-party-downloads/closure-compiler.jar\
 	  --language_out ECMASCRIPT5\
 	  --language_in ECMASCRIPT5\
