@@ -62,21 +62,21 @@ deps:
 	@# Ace (src-min-noconflict)
 	git clone --depth=1 https://github.com/ajaxorg/ace-builds/ ./appengine/third-party/ace-builds
 	mv ./appengine/third-party/ace-builds/src-noconflict ./appengine/third-party/ace
-	#rm -rf ./appengine/third-party/ace-builds/
+	rm -rf ./appengine/third-party/ace-builds/
 
 	@# Blockly for BG
 	git clone --depth=1 https://github.com/NeilFraser/blockly-for-BG ./appengine/third-party/blockly-for-BG
 	mv ./appengine/third-party/blockly-for-BG appengine/third-party/blockly
-	#rm -rf ./appengine/third-party/blockly/.git
+	rm -rf ./appengine/third-party/blockly/.git
 
 	@# SoundJS
 	git clone --depth=1 https://github.com/CreateJS/SoundJS ./appengine/third-party/SoundJS.tmp
 	mv ./appengine/third-party/SoundJS.tmp/lib appengine/third-party/SoundJS
-	#rm -rf ./appengine/third-party/SoundJS.tmp
+	rm -rf ./appengine/third-party/SoundJS.tmp
 
 	@# JS-Interpreter
 	git clone --depth=1 https://github.com/NeilFraser/JS-Interpreter ./appengine/third-party/JS-Interpreter
-	#rm -rf ./appengine/third-party/JS-Interpreter/.git
+	rm -rf ./appengine/third-party/JS-Interpreter/.git
 
 	@# Compile JS-Interpreter using SIMPLE_OPTIMIZATIONS because the Music game needs to mess with the stack.
 	mkdir -p build/third-party-downloads
