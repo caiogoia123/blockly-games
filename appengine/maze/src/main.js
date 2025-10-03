@@ -16,6 +16,7 @@ goog.require('Blockly');
 goog.require('Blockly.browserEvents');
 goog.require('Blockly.FieldDropdown');
 goog.require('Blockly.JavaScript');
+goog.require('Blockly.Python');
 goog.require('Blockly.Trashcan');
 goog.require('Blockly.utils.dom');
 goog.require('Blockly.utils.math');
@@ -1111,6 +1112,14 @@ function animate() {
     case 'finish':
       scheduleFinish(true);
       BlocklyInterface.saveToLocalStorage();
+      // --- START OF OUR MODIFICATION ---
+      // Generate Python code from the blocks on the workspace.
+      Blockly.Python.INFINITE_LOOP_TRAP = null;
+      const pythonCode = Blockly.Python.workspaceToCode(BlocklyInterface.workspace);
+      
+      // Overwrite the code to be displayed in the final dialog with our Python code.
+      BlocklyInterface.executedCode = pythonCode;
+      // --- END OF OUR MODIFICATION ---
       setTimeout(BlocklyCode.congratulations, 1000);
   }
 

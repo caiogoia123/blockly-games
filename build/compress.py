@@ -120,6 +120,20 @@ def generate_uncompressed(gameName):
         raise Exception("Failed to Popen: %s" % ' '.join(cmd))
     files = readStdout(proc)
 
+    # Bloco para injetar o gerador Python de forma inteligente
+    if gameName == 'maze':
+        print('Injecting Python generator for uncompressed mode...')
+        try:
+            # Encontra o gerador de JavaScript para injetar o de Python logo depois.
+            js_generator_file = 'appengine/third-party/blockly/generators/javascript.js\n'
+            index = files.index(js_generator_file)
+
+            py_generator_file = 'appengine/third-party/blockly/generators/python_compressed.js\n'
+            files.insert(index + 1, py_generator_file)
+            print('Python generator injected successfully after JavaScript generator.')
+        except ValueError:
+            print('WARNING: Could not find JavaScript generator to inject Python generator after.')
+
     path = '../' if gameName == 'pond/docs' else ''
     prefix = 'appengine/'
     srcs = []
@@ -151,7 +165,7 @@ window.CLOSURE_NO_DEPS = true;
   }
   loadScript();
 })();
-""" % ',\n      '.join(srcs)
+""" % ',\\n          '.join(srcs)
 
     with open('appengine/%s/generated/uncompressed.js' % gameName, 'w', encoding='utf-8') as f:
         f.write(content)

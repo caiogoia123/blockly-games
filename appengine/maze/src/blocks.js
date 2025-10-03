@@ -14,6 +14,7 @@ goog.provide('Maze.Blocks');
 
 goog.require('Blockly');
 goog.require('Blockly.JavaScript');
+goog.require('Blockly.Python');
 goog.require('Blockly.Extensions');
 goog.require('Blockly.FieldDropdown');
 goog.require('Blockly.FieldImage');
@@ -211,4 +212,63 @@ Blockly.JavaScript['maze_forever'] = function(block) {
         `'block_id_${block.id}'`) + branch;
   }
   return `while (notDone()) {\n${branch}}\n`;
+};
+
+// Python code generation.
+// --------------------
+// This is almost identical to the JavaScript generation above, except that
+// function names are converted to Python style and each block is terminated
+// with a newline instead of a semicolon.
+
+Blockly.Python = Blockly.Python || {};
+
+Blockly.Python['maze_moveForward'] = function(block) {
+  // Generate Python for moving forward.
+  return 'move_forward()\\n';
+};
+
+Blockly.Python['maze_turn'] = function(block) {
+  // Generate Python for turning left or right.
+  const code = (block.getFieldValue('DIR') === 'turnLeft') ?
+      'turn_left()' : 'turn_right()';
+  return code + '\\n';
+};
+
+Blockly.Python['maze_if'] = function(block) {
+  // Generate Python for 'if' conditional.
+  const dir = block.getFieldValue('DIR');
+  let condition;
+  if (dir === 'isPathForward') {
+    condition = 'is_path_ahead()';
+  } else if (dir === 'isPathLeft') {
+    condition = 'is_path_left()';
+  } else {
+    condition = 'is_path_right()';
+  }
+  const branch = Blockly.Python.statementToCode(block, 'DO') || Blockly.Python.PASS;
+  return 'if ' + condition + ':\\n' + branch;
+};
+
+Blockly.Python['maze_ifElse'] = function(block) {
+  // Generate Python for 'if/else' conditional.
+  const dir = block.getFieldValue('DIR');
+  let condition;
+  if (dir === 'isPathForward') {
+    condition = 'is_path_ahead()';
+  } else if (dir === 'isPathLeft') {
+    condition = 'is_path_left()';
+  } else {
+    condition = 'is_path_right()';
+  }
+  const branch0 = Blockly.Python.statementToCode(block, 'DO') || Blockly.Python.PASS;
+  const branch1 = Blockly.Python.statementToCode(block, 'ELSE') || Blockly.Python.PASS;
+  return 'if ' + condition + ':\\n' + branch0 + 'else:\\n' + branch1;
+};
+
+Blockly.Python['maze_forever'] = function(block) {
+  // Generate Python for repeat loop.
+  let branch = Blockly.Python.statementToCode(block, 'DO');
+  branch = Blockly.Python.addLoopTrap(branch, block) || Blockly.Python.PASS;
+  // O equivalente em Python do "notDone()" seria um loop "while not is_done()".
+  return 'while not is_done():\\n' + branch;
 };
