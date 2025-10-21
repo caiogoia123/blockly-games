@@ -132,15 +132,16 @@ BlocklyCode.congratulations = function() {
     pre.textContent = code;
     if (typeof prettyPrintOne === 'function') {
       code = pre.innerHTML;
-      code = prettyPrintOne(code, 'js');
+      code = prettyPrintOne(code, 'py');
       pre.innerHTML = code;
     }
     let locMsg;
     if (lineCount === 1) {
-      locMsg = BlocklyGames.getMsg('Games.linesOfCode1', false);
+      locMsg = BlocklyGames.getMsg('Games.linesOfCode1', false).replace('JavaScript', 'Python');
     } else {
       locMsg = BlocklyGames.getMsg('Games.linesOfCode2', false)
-          .replace('%1', String(lineCount));
+          .replace('%1', String(lineCount))
+          .replace('JavaScript', 'Python');
     }
     linesText.appendChild(document.createTextNode(locMsg));
   }
@@ -148,7 +149,8 @@ BlocklyCode.congratulations = function() {
   let levelMsg;
   if (BlocklyGames.LEVEL < BlocklyGames.MAX_LEVEL) {
     levelMsg = BlocklyGames.getMsg('Games.nextLevel', false)
-        .replace('%1', String(BlocklyGames.LEVEL + 1));
+        .replace('%1', String(BlocklyGames.LEVEL + 1))
+        .replace('JavaScript', 'Python');;
   } else {
     levelMsg = BlocklyGames.getMsg('Games.finalLevel', false);
   }

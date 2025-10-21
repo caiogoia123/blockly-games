@@ -64,6 +64,8 @@ deps:
 	mv ./appengine/third-party/ace-builds/src-noconflict ./appengine/third-party/ace
 	rm -rf ./appengine/third-party/ace-builds/
 
+# 	alterar aq
+
 	@# Blockly for BG
 	git clone --depth=1 https://github.com/NeilFraser/blockly-for-BG ./appengine/third-party/blockly-for-BG
 	mv ./appengine/third-party/blockly-for-BG appengine/third-party/blockly

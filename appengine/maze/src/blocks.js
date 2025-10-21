@@ -220,18 +220,16 @@ Blockly.JavaScript['maze_forever'] = function(block) {
 // function names are converted to Python style and each block is terminated
 // with a newline instead of a semicolon.
 
-Blockly.Python = Blockly.Python || {};
-
 Blockly.Python['maze_moveForward'] = function(block) {
   // Generate Python for moving forward.
-  return 'move_forward()\\n';
+  return 'move_forward()\n';
 };
 
 Blockly.Python['maze_turn'] = function(block) {
   // Generate Python for turning left or right.
   const code = (block.getFieldValue('DIR') === 'turnLeft') ?
       'turn_left()' : 'turn_right()';
-  return code + '\\n';
+  return code + '\n';
 };
 
 Blockly.Python['maze_if'] = function(block) {
@@ -246,7 +244,7 @@ Blockly.Python['maze_if'] = function(block) {
     condition = 'is_path_right()';
   }
   const branch = Blockly.Python.statementToCode(block, 'DO') || Blockly.Python.PASS;
-  return 'if ' + condition + ':\\n' + branch;
+  return 'if ' + condition + ':\n' + branch;
 };
 
 Blockly.Python['maze_ifElse'] = function(block) {
@@ -262,7 +260,7 @@ Blockly.Python['maze_ifElse'] = function(block) {
   }
   const branch0 = Blockly.Python.statementToCode(block, 'DO') || Blockly.Python.PASS;
   const branch1 = Blockly.Python.statementToCode(block, 'ELSE') || Blockly.Python.PASS;
-  return 'if ' + condition + ':\\n' + branch0 + 'else:\\n' + branch1;
+  return 'if ' + condition + ':\n' + branch0 + 'else:\n' + branch1;
 };
 
 Blockly.Python['maze_forever'] = function(block) {
@@ -270,5 +268,5 @@ Blockly.Python['maze_forever'] = function(block) {
   let branch = Blockly.Python.statementToCode(block, 'DO');
   branch = Blockly.Python.addLoopTrap(branch, block) || Blockly.Python.PASS;
   // O equivalente em Python do "notDone()" seria um loop "while not is_done()".
-  return 'while not is_done():\\n' + branch;
+  return 'while not is_done():\n' + branch;
 };

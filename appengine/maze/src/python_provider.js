@@ -1,1 +1,0 @@
-goog.provide('Blockly.Python');

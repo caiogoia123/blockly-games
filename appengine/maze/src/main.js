@@ -1110,15 +1110,16 @@ function animate() {
       pegmanD = constrainDirection4(pegmanD + 1);
       break;
     case 'finish':
-      scheduleFinish(true);
+scheduleFinish(true);
       BlocklyInterface.saveToLocalStorage();
       // --- START OF OUR MODIFICATION ---
       // Generate Python code from the blocks on the workspace.
-      Blockly.Python.INFINITE_LOOP_TRAP = null;
-      const pythonCode = Blockly.Python.workspaceToCode(BlocklyInterface.workspace);
+      Blockly.Python.INFINITE_LOOP_TRAP = null; // Descomentado
+      const pythonCode = Blockly.Python.workspaceToCode(BlocklyInterface.workspace); // Descomentado
       
       // Overwrite the code to be displayed in the final dialog with our Python code.
-      BlocklyInterface.executedCode = pythonCode;
+      // (Usamos BlocklyCode.executedJsCode pois é a variável que o lib-code.js lê)
+      BlocklyCode.executedJsCode = pythonCode; // Descomentado e usando a variável correta
       // --- END OF OUR MODIFICATION ---
       setTimeout(BlocklyCode.congratulations, 1000);
   }

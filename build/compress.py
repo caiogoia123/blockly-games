@@ -128,7 +128,7 @@ def generate_uncompressed(gameName):
             js_generator_file = 'appengine/third-party/blockly/generators/javascript.js\n'
             index = files.index(js_generator_file)
 
-            py_generator_file = 'appengine/third-party/blockly/generators/python_compressed.js\n'
+            py_generator_file = 'appengine/third-party/blockly/generators/python.js\n'
             files.insert(index + 1, py_generator_file)
             print('Python generator injected successfully after JavaScript generator.')
         except ValueError:
