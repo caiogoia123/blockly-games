@@ -132,7 +132,7 @@ BlocklyCode.congratulations = function() {
     pre.textContent = code;
     if (typeof prettyPrintOne === 'function') {
       code = pre.innerHTML;
-      code = prettyPrintOne(code, 'py');
+      code = prettyPrintOne(code, 'py'); // Mudou de 'js' para 'py' ---------------------------------------------------
       pre.innerHTML = code;
     }
     let locMsg;

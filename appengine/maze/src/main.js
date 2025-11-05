@@ -34,7 +34,7 @@ goog.require('Maze.html');
 BlocklyGames.storageName = 'maze';
 
 const MAX_BLOCKS =
-    [Infinity, Infinity, 2, 5, 5, 5, 5, 10, 7, 10][BlocklyGames.LEVEL - 1];
+    [Infinity, Infinity, 2, 5, 5, 5, 5, 10, 7, 8, 10, 10][BlocklyGames.LEVEL - 1];
 
 // Crash type constants.
 const CRASH_STOP = 1;
@@ -184,7 +184,25 @@ const map = [
   [1, 1, 1, 1, 1, 0, 1, 0],
   [0, 1, 0, 1, 0, 2, 1, 0],
   [0, 0, 0, 0, 0, 0, 0, 0]],
-// Level 10.
+// Fase 10 (NOVA).
+ [[0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0], 
+  [0, 0, 0, 0, 0, 3, 0, 0],
+  [0, 0, 0, 1, 0, 1, 0, 0],
+  [0, 0, 0, 1, 0, 1, 0, 0],
+  [0, 2, 1, 1, 1, 1, 1, 0], 
+  [0, 0, 0, 0, 0, 1, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0]],
+// Fase 11 (NOVA).
+ [[0, 0, 0, 0, 0, 0, 0, 0],
+  [3, 1, 1, 0, 0, 0, 0, 0],
+  [0, 1, 1, 1, 0, 0, 0, 0],
+  [0, 1, 0, 1, 0, 0, 0, 0],
+  [0, 1, 1, 1, 0, 0, 0, 0],
+  [0, 0, 0, 1, 0, 0, 0, 0],
+  [0, 2, 1, 1, 1, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0]],
+// Fase 12 .
  [[0, 0, 0, 0, 0, 0, 0, 0],
   [0, 1, 1, 0, 3, 0, 1, 0],
   [0, 1, 1, 0, 1, 1, 1, 0],
@@ -518,7 +536,7 @@ function init() {
     Blockly.SNAP_RADIUS *= 2;
     Blockly.CONNECTING_SNAP_RADIUS = Blockly.SNAP_RADIUS;
   }
-  if (BlocklyGames.LEVEL === 10) {
+  if (BlocklyGames.LEVEL === 12) {
     if (!BlocklyGames.loadFromLocalStorage(BlocklyGames.storageName,
                                            BlocklyGames.LEVEL)) {
       // Level 10 gets an introductory modal dialog.
