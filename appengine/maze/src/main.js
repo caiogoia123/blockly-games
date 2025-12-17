@@ -1128,17 +1128,21 @@ function animate() {
       pegmanD = constrainDirection4(pegmanD + 1);
       break;
     case 'finish':
-scheduleFinish(true);
+      scheduleFinish(true);
       BlocklyInterface.saveToLocalStorage();
-      // --- START OF OUR MODIFICATION ---
-      // Generate Python code from the blocks on the workspace.
-      Blockly.Python.INFINITE_LOOP_TRAP = null; // Descomentado
-      const pythonCode = Blockly.Python.workspaceToCode(BlocklyInterface.workspace); // Descomentado
       
-      // Overwrite the code to be displayed in the final dialog with our Python code.
-      // (Usamos BlocklyCode.executedJsCode pois é a variável que o lib-code.js lê)
-      BlocklyCode.executedJsCode = pythonCode; // Descomentado e usando a variável correta
-      // --- END OF OUR MODIFICATION ---
+      // 1. Gera a lógica do aluno (apenas os comandos)
+      Blockly.Python.INFINITE_LOOP_TRAP = null;
+      const pythonLogic = Blockly.Python.workspaceToCode(BlocklyInterface.workspace);
+      
+      // 2. Passa a lógica para o visualizador (janela de texto)
+      BlocklyCode.executedJsCode = pythonLogic;
+
+      // 3. Gera o JOGO COMPLETO (Engine + Lógica) para download
+      // Salvamos isso numa propriedade nova em BlocklyCode para usar depois
+      BlocklyCode.fullPythonScript = generateLevelPython(pythonLogic);
+      BlocklyCode.downloadFileName = "maze_nivel_" + BlocklyGames.LEVEL + ".py";
+
       setTimeout(BlocklyCode.congratulations, 1000);
   }
 
@@ -1501,5 +1505,246 @@ function isPath(direction, id) {
 function notDone() {
   return pegmanX !== finish_.x || pegmanY !== finish_.y;
 }
+/**
+ * Gera o script Python interativo com LIMITE DE MOVIMENTOS.
+ */
+function generateLevelPython(studentCode) {
+  const mapString = JSON.stringify(map); 
+  const startX = start_.x;
+  const startY = start_.y;
+  const startDir = startDirection; 
+
+  return `import pygame
+import sys
+import threading
+import time
+
+# =============================================================================
+#  LABIRINTO BLOCKLY - NÍVEL LOCAL
+# =============================================================================
+
+# --- CONFIGURAÇÕES DA FASE ---
+MAZE_MAP = ${mapString}
+TILE_SIZE = 50
+ROWS = len(MAZE_MAP)
+COLS = len(MAZE_MAP[0])
+WIDTH = COLS * TILE_SIZE
+# Aumentei a área cinza para 90px para caber duas linhas de texto com folga
+HEIGHT = ROWS * TILE_SIZE + 90 
+
+# Limite de segurança
+MAX_MOVES = 50 
+
+# Cores
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
+GREEN = (0, 200, 0)
+RED = (200, 0, 0)
+BLUE = (0, 100, 255)
+GRAY = (200, 200, 200)
+DARK_GRAY = (50, 50, 50)
+YELLOW = (255, 255, 0)
+
+# Estado Global do Jogo
+game_state = {
+    "x": ${startX},
+    "y": ${startY},
+    "dir": ${startDir}, 
+    "finished": False,
+    "status": "Iniciando...",
+    "error": None,
+    "moves": 0
+}
+
+# --- FUNÇÕES DE CONTROLE ---
+def update_status(msg):
+    game_state["status"] = msg
+    print(msg)
+
+def check_limit():
+    if game_state["moves"] >= MAX_MOVES:
+        game_state["error"] = "TIMEOUT: +50 movimentos!"
+        update_status("ERRO: Limite de 50 movimentos excedido.")
+        return False
+    game_state["moves"] += 1
+    return True
+
+def move_forward():
+    if game_state["error"] or game_state["finished"]: return
+    if not check_limit(): return
+
+    update_status(f"Ação: Mover para frente")
+    time.sleep(0.5)
+    
+    dx, dy = 0, 0
+    if game_state["dir"] == 0: dy = -1
+    elif game_state["dir"] == 1: dx = 1
+    elif game_state["dir"] == 2: dy = 1
+    elif game_state["dir"] == 3: dx = -1
+    
+    nx, ny = game_state["x"] + dx, game_state["y"] + dy
+    
+    if 0 <= nx < COLS and 0 <= ny < ROWS and MAZE_MAP[ny][nx] != 0:
+        game_state["x"] = nx
+        game_state["y"] = ny
+        if MAZE_MAP[ny][nx] == 3:
+            game_state["finished"] = True
+            update_status("VENCEU! Você chegou ao destino.")
+    else:
+        update_status("Bateu na parede!")
+
+def turn_left():
+    if game_state["error"] or game_state["finished"]: return
+    if not check_limit(): return
+
+    update_status(f"Ação: Virar à esquerda")
+    time.sleep(0.4)
+    game_state["dir"] = (game_state["dir"] - 1) % 4
+
+def turn_right():
+    if game_state["error"] or game_state["finished"]: return
+    if not check_limit(): return
+
+    update_status(f"Ação: Virar à direita")
+    time.sleep(0.4)
+    game_state["dir"] = (game_state["dir"] + 1) % 4
+
+def is_path_ahead():
+    dx, dy = 0, 0
+    if game_state["dir"] == 0: dy = -1
+    elif game_state["dir"] == 1: dx = 1
+    elif game_state["dir"] == 2: dy = 1
+    elif game_state["dir"] == 3: dx = -1
+    nx, ny = game_state["x"] + dx, game_state["y"] + dy
+    return 0 <= nx < COLS and 0 <= ny < ROWS and MAZE_MAP[ny][nx] != 0
+
+def is_path_left():
+    temp_dir = (game_state["dir"] - 1) % 4
+    dx, dy = 0, 0
+    if temp_dir == 0: dy = -1
+    elif temp_dir == 1: dx = 1
+    elif temp_dir == 2: dy = 1
+    elif temp_dir == 3: dx = -1
+    nx, ny = game_state["x"] + dx, game_state["y"] + dy
+    return 0 <= nx < COLS and 0 <= ny < ROWS and MAZE_MAP[ny][nx] != 0
+
+def is_path_right():
+    temp_dir = (game_state["dir"] + 1) % 4
+    dx, dy = 0, 0
+    if temp_dir == 0: dy = -1
+    elif temp_dir == 1: dx = 1
+    elif temp_dir == 2: dy = 1
+    elif temp_dir == 3: dx = -1
+    nx, ny = game_state["x"] + dx, game_state["y"] + dy
+    return 0 <= nx < COLS and 0 <= ny < ROWS and MAZE_MAP[ny][nx] != 0
+
+def is_done():
+    return game_state["finished"]
+
+# --- LÓGICA DO JOGADOR ---
+def run_student_logic():
+    time.sleep(1) 
+    try:
+        print("--- INICIANDO SEU CÓDIGO ---")
+# ============================================================
+#               EDITE O CÓDIGO ABAIXO
+# ============================================================
+${studentCode.replace(/^/gm, "        ")}
+# ============================================================
+#               FIM DO SEU CÓDIGO
+# ============================================================
+        
+        if not game_state["finished"] and not game_state["error"]:
+            update_status("Fim do programa (sem vencer)")
+            
+    except Exception as e:
+        game_state["error"] = str(e)
+        game_state["status"] = "ERRO NO CÓDIGO!"
+        print(f"ERRO DE EXECUÇÃO: {e}")
+
+# --- ENGINE GRÁFICA (PYGAME) ---
+def main():
+    pygame.init()
+    screen = pygame.display.set_mode((WIDTH, HEIGHT))
+    pygame.display.set_caption("Maze Python - Interativo")
+    clock = pygame.time.Clock()
+    font = pygame.font.SysFont('Arial', 18)
+    font_bold = pygame.font.SysFont('Arial', 18, bold=True)
+
+    t = threading.Thread(target=run_student_logic)
+    t.daemon = True
+    t.start()
+
+    running = True
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+
+        screen.fill(BLACK)
+
+        # Desenha Mapa
+        for row in range(ROWS):
+            for col in range(COLS):
+                tile = MAZE_MAP[row][col]
+                rect = pygame.Rect(col*TILE_SIZE, row*TILE_SIZE, TILE_SIZE, TILE_SIZE)
+                if tile == 1: pygame.draw.rect(screen, WHITE, rect)
+                elif tile == 2: pygame.draw.rect(screen, GREEN, rect)
+                elif tile == 3: pygame.draw.rect(screen, RED, rect)
+                if tile != 0: pygame.draw.rect(screen, GRAY, rect, 1)
+
+        # Desenha Player
+        px = game_state["x"] * TILE_SIZE + TILE_SIZE // 2
+        py = game_state["y"] * TILE_SIZE + TILE_SIZE // 2
+        pygame.draw.circle(screen, BLUE, (px, py), TILE_SIZE // 3)
+        
+        # Olhos
+        eye_x, eye_y = px, py
+        if game_state["dir"] == 0: eye_y -= 10
+        elif game_state["dir"] == 1: eye_x += 10
+        elif game_state["dir"] == 2: eye_y += 10
+        elif game_state["dir"] == 3: eye_x -= 10
+        pygame.draw.circle(screen, YELLOW, (eye_x, eye_y), 3)
+
+        # --- PAINEL DE STATUS (Atualizado) ---
+        # Fundo cinza maior (90px)
+        pygame.draw.rect(screen, DARK_GRAY, (0, HEIGHT-90, WIDTH, 90))
+        
+        # 1. Linha Superior: STATUS (ex: "Ação: Mover para frente")
+        status_color = WHITE
+        status_text = game_state["status"]
+        
+        if game_state["error"]:
+            status_color = RED
+            if "TIMEOUT" in game_state["error"]:
+                 status_text = game_state["error"] 
+            else:
+                 status_text = f"ERRO: {game_state['error']}"
+        elif game_state["finished"]:
+            status_color = GREEN
+
+        text_surf = font_bold.render(status_text, True, status_color)
+        screen.blit(text_surf, (10, HEIGHT - 80)) # Posição superior
+        
+        # 2. Linha Inferior: CONTADOR (ex: "Movimentos: 5/50")
+        moves_color = GRAY
+        if game_state["moves"] >= MAX_MOVES:
+            moves_color = RED
+            
+        moves_text = f"Movimentos utilizados: {game_state['moves']} / {MAX_MOVES}"
+        moves_surf = font.render(moves_text, True, moves_color)
+        screen.blit(moves_surf, (10, HEIGHT - 45)) # Posição inferior (abaixo do status)
+
+        pygame.display.flip()
+        clock.tick(30)
+
+    pygame.quit()
+    sys.exit()
+
+if __name__ == "__main__":
+    main()
+`;
+}
+
 
 BlocklyGames.callWhenLoaded(init);

@@ -71,6 +71,10 @@ deps:
 	mv ./appengine/third-party/blockly-for-BG appengine/third-party/blockly
 	rm -rf ./appengine/third-party/blockly/.git
 
+	@# --- RESTAURAR ARQUIVOS CUSTOMIZADOS ---
+	@echo "Restoring custom Python generator..."
+	cp custom_files/python.js appengine/third-party/blockly/generators/python.js
+
 	@# SoundJS
 	git clone --depth=1 https://github.com/CreateJS/SoundJS ./appengine/third-party/SoundJS.tmp
 	mv ./appengine/third-party/SoundJS.tmp/lib appengine/third-party/SoundJS

@@ -155,6 +155,47 @@ BlocklyCode.congratulations = function() {
     levelMsg = BlocklyGames.getMsg('Games.finalLevel', false);
   }
 
+  // --- NOVO: Botão de Download ---
+  const buttonDiv = BlocklyGames.getElementById('dialogDoneButtons');
+  
+  // Verifica se já criamos o botão antes para não duplicar
+  let downloadBtn = document.getElementById('downloadPythonBtn');
+  if (!downloadBtn) {
+    downloadBtn = document.createElement('button');
+    downloadBtn.id = 'downloadPythonBtn';
+    downloadBtn.textContent = 'Baixar Jogo (Python)';
+    // Estilo opcional para diferenciar
+    downloadBtn.style.marginRight = '10px'; 
+    downloadBtn.style.backgroundColor = '#4CAF50'; // Verde
+    downloadBtn.style.color = 'white';
+    
+    // Insere o botão antes do botão "OK"
+    buttonDiv.insertBefore(downloadBtn, buttonDiv.firstChild);
+  }
+
+  // Define a ação do clique (Baixar o arquivo)
+  downloadBtn.onclick = function() {
+    const content = BlocklyCode.fullPythonScript;
+    const filename = BlocklyCode.downloadFileName || 'maze.py';
+    
+    // Lógica de download
+    const blob = new Blob([content], { type: 'text/x-python' });
+    const a = document.createElement('a');
+    a.download = filename;
+    a.href = URL.createObjectURL(blob);
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(function() { URL.revokeObjectURL(a.href); }, 1500);
+  };
+  
+  // Só mostra o botão se houver script gerado (para não quebrar outros jogos)
+  if (BlocklyCode.fullPythonScript) {
+      downloadBtn.style.display = 'inline-block';
+  } else {
+      downloadBtn.style.display = 'none';
+  }
+
   const ok = BlocklyGames.getElementById('doneOk');
   ok.addEventListener('click', BlocklyInterface.nextLevel, true);
   ok.addEventListener('touchend', BlocklyInterface.nextLevel, true);
